@@ -1,54 +1,33 @@
-import reactImage from './assets/react-core-concepts.png'
-import { CORE_CONCEPTS } from './data'
+import { useState } from 'react';
 
-const reactDescriptions = ['Fundamental', 'Crucial', 'Core']
-
-function genRandomInt(max) {
-  return Math.floor(Math.random() * (max + 1))
-}
-
-function Header() {
-  const description = reactDescriptions[genRandomInt(reactDescriptions.length - 1)]
-
-  return (
-    <header>
-        <img src={reactImage} alt="Stylized atom" />
-        <h1>React Essentials</h1>
-        <p>
-          {description} React concepts you will need for almost any app you are
-          going to build!
-        </p>
-      </header>
-  )
-}
-
-function CoreConcept({title, description, image}){
-  return (
-    <li>
-      <img src={image} alt={title} />
-      <h3>{title}</h3>
-      <p>{description}</p>
-    </li>
-  )
-}
-
-function CoreConceptList() {
-  const listOfConcepts = []
-
-  CORE_CONCEPTS.forEach(concept => {
-    listOfConcepts.push(
-      // es posible utilizar el operador ... porque las propiedades
-      // del objeto tienen el mismo nombre que las props en el componente
-      <CoreConcept {...concept} key={concept.title}/>
-    )
-  })
-
-  return (
-    listOfConcepts
-  )
-}
+import Header from './components/Header/Header.jsx'
+import TabButton from './components/TabButton.jsx';
+import CoreConcept from './components/CoreConcept.jsx'
+import { EXAMPLES } from './data.js';
+import { CORE_CONCEPTS } from './data.js';
 
 function App() {
+  const [ selectedTopic, setSelectedTopic ] = useState()
+
+  function handleSelect(selectedButton) {
+    setSelectedTopic(selectedButton)
+  }
+
+  let tabContent = <p>Please select a topic</p>
+
+  if (selectedTopic) {
+    tabContent = (
+    <div id="tab-content">
+      <h3>{EXAMPLES[selectedTopic].title}</h3>
+      <p>{EXAMPLES[selectedTopic].description}</p>
+      <pre>
+        <code>{EXAMPLES[selectedTopic].code}</code>
+      </pre>
+    </div>
+    )
+  }
+
+  
   return (
     <div>
       <Header />
@@ -56,8 +35,18 @@ function App() {
         <section id="core-concepts">
           <h2>Core Concepts</h2>
           <ul>
-            <CoreConceptList/>
+            {CORE_CONCEPTS.map(concept => <CoreConcept key={concept.title} {...concept}/>)}
           </ul>
+        </section>
+        <section id="examples">
+          <h2>Examples</h2>
+          <menu>
+            <TabButton isSelected={selectedTopic === 'components'} onSelect={() => handleSelect('components')}>Component</TabButton>
+            <TabButton isSelected={selectedTopic === 'jsx'} onSelect={() => handleSelect('jsx')}>JSX</TabButton>
+            <TabButton isSelected={selectedTopic === 'props'} onSelect={() => handleSelect('props')}>Props</TabButton>
+            <TabButton isSelected={selectedTopic === 'state'} onSelect={() => handleSelect('state')}>State</TabButton>
+          </menu>
+          {tabContent}
         </section>
       </main>
     </div>

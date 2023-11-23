@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { WINNING_COMBINATIONS } from './winning-combinations'
 
 import Player from './components/Player'
 import GameBoard from './components/GameBoard'
@@ -12,11 +13,40 @@ function deriveActivePlayer (gameTurns) {
   return currentPlayer
 }
 
+const initialGameBoard = [
+  [null, null, null],
+  [null, null, null],
+  [null, null, null]
+]
+
 function App () {
   // const [activePlayer, setActivePlayer] = useState('X') ya no se necesita para rerenderizar - no extra state
   const [gameTurns, setGameTurns] = useState([])
 
   const activePlayer = deriveActivePlayer(gameTurns)
+
+  const gameBoard = initialGameBoard
+
+  for (const turn of gameTurns) {
+    const { square, player } = turn
+    const { row, col } = square
+
+    gameBoard[row][col] = player
+  }
+
+  let winner
+
+  for (const combinations of WINNING_COMBINATIONS) {
+    const firstSquareSymbol = gameBoard[combinations[0].row][combinations[0].col]
+    const secondSquareSymbol = gameBoard[combinations[1].row][combinations[1].col]
+    const thirdquareSymbol = gameBoard[combinations[2].row][combinations[2].col]
+
+    if (firstSquareSymbol &&
+        firstSquareSymbol === secondSquareSymbol &&
+        firstSquareSymbol === thirdquareSymbol) {
+      winner = firstSquareSymbol
+    }
+  }
 
   function handleSelectSquare (rowIndex, colIndex) {
     // setActivePlayer(curActivePlayer => curActivePlayer === 'X' ? 'O' : 'X')
@@ -34,7 +64,8 @@ function App () {
           <Player initialName='Player 1' symbol='X' isActive={activePlayer === 'X'}/>
           <Player initialName='Player 2' symbol='O' isActive={activePlayer === 'O'}/>
         </ol>
-        <GameBoard onSelectSquare={handleSelectSquare} turns={gameTurns}/>
+        {winner && <p>You won, {winner}</p>}
+        <GameBoard onSelectSquare={handleSelectSquare} board={gameBoard}/>
       </div>
 
       <Log turns={gameTurns}/>
